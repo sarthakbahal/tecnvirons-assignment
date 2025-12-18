@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import re
 load_dotenv()
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -61,7 +62,7 @@ TOOLS = [
 ]
 
 # ============================================================
-# SYSTEM PROMPTS FOR DIFFERENT INTENTS (Multi-Step Routing)
+# SYSTEM PROMPTS FOR DIFFERENT S (Multi-Step Routing)
 # ============================================================
 
 # Default conversational assistant
@@ -267,37 +268,32 @@ async def get_all_sessions() -> dict:
 
 def detect_intent(message: str) -> str:
     """
-    Detect the user's intent from their message.
+    Detect the user's intent from their message using regex pattern matching.
     This determines which system prompt to use.
     
     Returns one of: 'technical_support', 'code_assistant', 'tutorial', 'casual_chat'
     """
     message_lower = message.lower()
     
-    # Technical Support keywords
-    technical_keywords = ['error', 'bug', 'not working', 'broken', 'issue', 'problem', 
-                         'fix', 'help', 'troubleshoot', 'debug', "doesn't work", 'failing']
+    # Technical Support patterns - matches whole words or phrases
+    technical_pattern = r'\b(error|bug|not working|broken|issue|problem|fix|help|troubleshoot|debug|doesn\'t work|failing|crashed|exception)\b'
     
-    # Code Assistant keywords
-    code_keywords = ['code', 'function', 'python', 'javascript', 'programming', 
-                    'algorithm', 'syntax', 'class', 'variable', 'loop', 'api',
-                    'write a', 'create a function', 'how to code']
+    # Code Assistant patterns - matches programming-related terms
+    code_pattern = r'\b(code|function|python|javascript|java|c\+\+|programming|algorithm|syntax|class|variable|loop|api|write a|create a function|how to code|implement|method|array|object)\b'
     
-    # Tutorial keywords
-    tutorial_keywords = ['how to', 'teach me', 'explain', 'what is', 'tutorial',
-                        'learn', 'understand', 'show me how', 'step by step',
-                        'can you explain', 'help me understand']
+    # Tutorial patterns - matches learning-related phrases
+    tutorial_pattern = r'\b(how to|teach me|explain|what is|tutorial|learn|understand|show me how|step by step|can you explain|help me understand|guide me)\b'
     
     # Check for technical support intent
-    if any(keyword in message_lower for keyword in technical_keywords):
+    if re.search(technical_pattern, message_lower, re.IGNORECASE):
         return 'technical_support'
     
     # Check for code assistant intent
-    if any(keyword in message_lower for keyword in code_keywords):
+    if re.search(code_pattern, message_lower, re.IGNORECASE):
         return 'code_assistant'
     
     # Check for tutorial intent
-    if any(keyword in message_lower for keyword in tutorial_keywords):
+    if re.search(tutorial_pattern, message_lower, re.IGNORECASE):
         return 'tutorial'
     
     # Default to casual chat
