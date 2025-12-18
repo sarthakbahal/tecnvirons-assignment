@@ -1,0 +1,8 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+websockets==14.1
+supabase==2.15.1
+langchain-groq==0.3.8
+langchain-core==0.3.76
+python-dotenv==1.1.1
+pydantic==2.12.1
